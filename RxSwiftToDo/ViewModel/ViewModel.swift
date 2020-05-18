@@ -11,13 +11,16 @@ import CoreData
 import RxSwift
 import RxCocoa
 
-class ViewModel {
-    var coreDataManager = CoreDataManager()
+class ViewModel: NSObject {
+    var coreDataManager: CoreDataManager
     let toDoModel = BehaviorRelay<[ToDo]>(value: [])
-    let disposeBag = DisposeBag()
+    let disposeBag: DisposeBag
     
-    init() {
-           returnData()
+    override init() {
+        disposeBag = DisposeBag()
+        coreDataManager = CoreDataManager()
+        super.init()
+        returnData()
        }
     
     private func returnData() {
@@ -29,8 +32,18 @@ class ViewModel {
             .disposed(by: disposeBag)
     }
     
+    public func removeTodo(withIndex index: Int) {
+        coreDataManager.removeTodo(withIndex: index)
+    }
+    
     public func addTodo(withTodo todo: String) {
         coreDataManager.addTodo(withTodo: todo)
     }
-}
+    
+    public func cellViewModel(index: Int) -> ToDo {
+        guard index < toDoModel.value.count else { return ToDo()}
+        return toDoModel.value[index]
+       }
+   }
+
 

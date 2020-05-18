@@ -37,7 +37,6 @@ class CoreDataManager {
     
     public func addTodo(withTodo todo: String) {
         let newTodo = NSEntityDescription.insertNewObject(forEntityName: "ToDo", into: context) as! ToDo
-        
         newTodo.name = todo
         background.perform {
         do {
@@ -48,5 +47,16 @@ class CoreDataManager {
         }
     }
 }
+    public func removeTodo(withIndex index: Int) {
+        context.delete(coreDataModel.value[index])
+        background.perform {
+        do {
+            try self.context.save()
+            self.coreDataModel.accept(self.fetchData())
+        } catch {
+            fatalError("error delete data")
+        }
+        }
+    }
     
 }

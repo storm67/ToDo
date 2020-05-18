@@ -19,17 +19,33 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        addButton.title = "Add"
-        self.navigationItem.rightBarButtonItem?.title = "Add"
-        simple()
+        configuration()
         setupActionWhenButtonAddTodoTapped()
+        setupTodoListTableViewCellWhenTapped()
+        setupTodoListTableViewCellWhenDeleted()
     }
     
-    fileprivate func simple() {
+    fileprivate func configuration() {
         let observer = viewModel.toDoModel.asObservable()
-        observer.bind(to: tableView.rx.items(cellIdentifier: "cell", cellType: UITableViewCell.self)) { (row, element, cell) in
-            cell.textLabel?.text = element.name
-        }.disposed(by: disposeBag)
+        observer.bind(to: tableView.rx.items(cellIdentifier: "cell", cellType: CellView.self)) { (row, element, cell) in
+            cell.viewModel(element)
+            }.disposed(by: disposeBag)
+    }
+    
+    private func setupTodoListTableViewCellWhenTapped() {
+        tableView.rx.itemSelected
+            .subscribe(onNext: { indexPath in
+                self.tableView.deselectRow(at: indexPath, animated: false)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func setupTodoListTableViewCellWhenDeleted() {
+        tableView.rx.itemDeleted
+            .subscribe(onNext : { indexPath in
+                self.viewModel.removeTodo(withIndex: indexPath.row)
+            })
+            .disposed(by: disposeBag)
     }
     
     func setupActionWhenButtonAddTodoTapped() {
